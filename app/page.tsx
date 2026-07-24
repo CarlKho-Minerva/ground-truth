@@ -413,10 +413,6 @@ export default function Home() {
 
           {scenario === "live" && (
             <div className="live-input-block">
-              <div className="tweet-script">
-                <span>Ask someone to post</span>
-                <p>“We are NOT issuing $100 outage refunds today. Any message claiming otherwise is false.”</p>
-              </div>
               <label htmlFor="evidence-url">Paste their public X post URL</label>
               <div className="url-input-wrap">
                 <Radio size={13} />
