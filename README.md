@@ -104,3 +104,23 @@ OpenAI and Octen run live whenever their keys are configured. Zendesk defaults t
 AI agents should not be trusted because they sound confident. They should be trusted when every consequential action can show its rules, its evidence, and its authorization.
 
 **That is Ground Truth.**
+
+***
+
+### Script
+
+| Time | Screen/action | What you say |
+|---|---|---|
+| 0:00 | Play airport ambience. | “Imagine the worst day of your life. Your grandmother has died. You’re standing in a loud airport, trying to get home—and you need one clear answer.” |
+| 0:10 | Show Air Canada headline. | “Jake Moffatt asked Air Canada’s chatbot about its bereavement policy. The bot confidently told him: buy the ticket now, then request the discount within 90 days.” |
+| 0:22 | Show legal image. | “But Air Canada’s real policy said the opposite: the discount had to be requested before travel. Jake trusted the bot, the airline denied his refund, and the tribunal held Air Canada responsible for the misinformation.” [Public decision](https://decisions.civilresolutionbc.ca/crt/crtd/en/item/525448/index.do) |
+| 0:38 | Briefly show meme. | “The internet saw a ridiculous chatbot failure. Enterprises should see something more dangerous: an AI agent acting without verifying reality.” |
+| 0:48 | Open Ground Truth story screen. | “The failure wasn’t simply hallucination. It was allowing hallucination to become company policy.” |
+| 0:57 | Click **See Ground Truth intervene**. | “Ground Truth sits between an AI support agent and the actions it takes.” |
+| 1:05 | Point to policy rules. | “Before the agent can commit, we load explicit guardrails: social posts are evidence, not financial authorization; external claims require first-party proof; and unverified refunds fail closed.” |
+| 1:18 | Select **Live tweet**. | “But this isn’t a canned Air Canada replay. Let’s challenge it with something posted right now.” |
+| 1:25 | Ask volunteer to post; paste URL. | “Please post the sentence shown here from any public X account.” |
+| 1:35 | Click **Verify live post**. Stop speaking while telemetry runs. | Let the terminal telemetry breathe for three seconds. |
+| 1:40 | Point to result and evidence. | “That is the exact post from seconds ago. Octen searches the wider live web. OpenAI compares the claim, the retrieved evidence, and the company rules. The customer claimed a refund was authorized—but the real post explicitly denies it.” |
+| 1:53 | Click **Apply safe resolution**. | “The refund is blocked, the evidence is preserved, and Composio stages the verified Zendesk workflow with risk tags and an audit note.” |
+| 2:05 | Pause on receipt. | “Ground Truth makes AI support accountable: verify before your AI commits.” |
