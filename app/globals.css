@@ -218,6 +218,46 @@ textarea:disabled { opacity: .8; }
 .scanning-label { color: var(--acid); font: 600 7px/1 var(--font-geist-mono), monospace; text-transform: uppercase; animation: softBlink 1s ease-in-out infinite; }
 
 .verdict-stage { height: 313px; display: flex; align-items: stretch; justify-content: stretch; border: 1px solid var(--line); border-radius: 10px; background: rgba(6,8,7,.42); }
+.rules-state, .telemetry-state { width: 100%; min-width: 0; }
+.rules-state { padding: 16px; display: flex; flex-direction: column; }
+.rules-heading { display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.rules-heading > div { display: flex; align-items: center; gap: 7px; color: #c9d2c0; font-size: 9px; font-weight: 670; }
+.rules-heading > div svg { color: var(--acid); }
+.rules-heading > code { color: var(--acid); font: 550 7px/1 var(--font-geist-mono), monospace; text-transform: uppercase; }
+.rules-list { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+.rule-row { min-height: 39px; display: grid; grid-template-columns: 56px 1fr 18px; align-items: center; gap: 9px; padding: 7px 9px; border: 1px solid rgba(255,255,255,.065); border-radius: 7px; background: rgba(255,255,255,.015); }
+.rule-row code { color: var(--acid); font: 650 8px/1 var(--font-geist-mono), monospace; }
+.rule-row span { color: #989d95; font-size: 8px; line-height: 1.35; }
+.rule-row svg { color: #67715d; }
+.rules-footer { margin-top: auto; display: flex; align-items: center; justify-content: space-between; color: #515650; font: 520 7px/1 var(--font-geist-mono), monospace; }
+.rules-footer span { display: flex; align-items: center; gap: 5px; }
+.rules-footer strong { display: flex; align-items: center; gap: 5px; color: #aabc8d; font-size: 7px; font-weight: 650; text-transform: uppercase; }
+.rules-footer strong::before { width: 5px; height: 5px; content: ""; border-radius: 50%; background: var(--acid); box-shadow: 0 0 7px var(--acid); }
+.telemetry-state { display: flex; flex-direction: column; overflow: hidden; border-radius: 9px; background: #080a09; }
+.terminal-heading { height: 40px; padding: 0 13px; display: grid; grid-template-columns: 65px 1fr auto; align-items: center; color: #747a72; border-bottom: 1px solid var(--line); background: #111411; font: 600 7px/1 var(--font-geist-mono), monospace; text-transform: uppercase; letter-spacing: .08em; }
+.terminal-heading > span { display: flex; align-items: center; justify-content: center; gap: 6px; color: #8f968b; }
+.terminal-heading > code { color: #4f554e; font-size: 7px; }
+.terminal-dots { display: flex; gap: 5px; }
+.terminal-dots span { width: 6px; height: 6px; border-radius: 50%; background: #343934; }
+.terminal-dots span:first-child { background: #744234; }
+.terminal-dots span:nth-child(2) { background: #6e5a2b; }
+.terminal-dots span:last-child { background: #3c6138; }
+.terminal-body { flex: 1; padding: 15px 16px 10px; overflow: hidden; font: 500 8px/1.5 var(--font-geist-mono), monospace; }
+.terminal-command { margin-bottom: 13px; color: #aeb5aa; }
+.terminal-command > span { margin-right: 7px; color: var(--acid); }
+.terminal-line { min-width: 0; display: grid; grid-template-columns: 52px 72px 1fr; gap: 8px; margin: 7px 0; color: #7c837a; }
+.terminal-line > code { color: #454b45; font-size: 7px; }
+.terminal-line > b { font-weight: 650; text-transform: uppercase; }
+.terminal-line > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.source-policy { color: #a7b29b; }
+.source-octen { color: #8fbeff; }
+.source-x-direct { color: #d0d3d0; }
+.source-openai { color: var(--acid); }
+.source-composio { color: #be95ff; }
+.terminal-working { display: flex; align-items: center; gap: 6px; margin-top: 12px; color: #5f665d; }
+.terminal-working svg { color: var(--acid); }
+.terminal-cursor { width: 5px; height: 10px; margin-left: 1px; background: var(--acid); animation: softBlink .8s steps(1) infinite; }
+.terminal-footer { height: 31px; display: flex; align-items: center; padding: 0 13px; color: #494e48; border-top: 1px solid var(--line); background: #0d100e; font: 500 7px/1 var(--font-geist-mono), monospace; }
 .idle-state { width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; text-align: center; }
 .idle-state strong { margin: 16px 0 6px; font-size: 12px; }
 .idle-state p { max-width: 290px; margin: 0; color: var(--subtle); font-size: 10px; line-height: 1.5; }

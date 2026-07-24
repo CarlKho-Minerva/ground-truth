@@ -25,6 +25,7 @@ import {
   Send,
   ShieldCheck,
   Sparkles,
+  Terminal,
   TicketCheck,
   Zap,
 } from "lucide-react";
@@ -46,26 +47,41 @@ type DemoState = "idle" | "verifying" | "verified" | "syncing" | "synced";
 
 const stageDetails = [
   {
-    label: "Extract policy claim",
-    provider: "OpenAI",
-    Icon: BrainCircuit,
-  },
-  {
-    label: "Check internal baseline",
-    provider: "Policy KB",
+    label: "Load decision guardrails",
+    provider: "Policy Graph",
     Icon: Database,
   },
   {
-    label: "Search live public record",
+    label: "Retrieve external evidence",
     provider: "Octen AI",
     Icon: Search,
   },
   {
-    label: "Resolve the discrepancy",
+    label: "Ground claim to evidence",
+    provider: "OpenAI",
+    Icon: BrainCircuit,
+  },
+  {
+    label: "Authorize or block action",
     provider: "Ground Truth",
     Icon: Scale,
   },
 ];
+
+const ruleSets = {
+  case: [
+    { id: "BRV-104", text: "Bereavement handling must be requested before travel." },
+    { id: "AI-12", text: "Never deny a claim when prior bot guidance created reliance." },
+    { id: "LEG-03", text: "Preserve conflicting AI promises for liability review." },
+    { id: "AUD-09", text: "Every policy exception requires a signed evidence trace." },
+  ],
+  live: [
+    { id: "RF-204", text: "Social posts are evidence—never financial authorization." },
+    { id: "EV-07", text: "External claims require retrievable first-party evidence." },
+    { id: "AI-12", text: "Fail closed on unverified account credits or refunds." },
+    { id: "SOC-11", text: "Contradicted live claims trigger social-engineering review." },
+  ],
+};
 
 function ProviderBadge({
   mode,
@@ -96,6 +112,43 @@ export default function Home() {
   const [error, setError] = useState("");
 
   const isWorking = demoState === "verifying" || demoState === "syncing";
+  const activeRules = ruleSets[scenario];
+  const telemetryLines = [
+    {
+      stage: 0,
+      time: "+000ms",
+      source: "policy",
+      message: `loaded ${activeRules.map((rule) => rule.id).join(" · ")}`,
+    },
+    {
+      stage: 1,
+      time: "+012ms",
+      source: "octen",
+      message: "POST /search · count=3 · no-cache",
+    },
+    ...(scenario === "live"
+      ? [
+          {
+            stage: 1,
+            time: "+018ms",
+            source: "x-direct",
+            message: "GET public post URL · awaiting exact text",
+          },
+        ]
+      : []),
+    {
+      stage: 2,
+      time: "+220ms",
+      source: "openai",
+      message: "Responses API · gpt-5.6-luna · strict schema",
+    },
+    {
+      stage: 3,
+      time: "+live",
+      source: "composio",
+      message: "staging ZENDESK_UPDATE_TICKET action contract",
+    },
+  ];
 
   async function verifyClaim() {
     setError("");
@@ -433,11 +486,11 @@ export default function Home() {
               const isActive = demoState === "verifying" && index === activeStage;
               const latency = result
                 ? index === 0
-                  ? `${result.latency.openaiMs}ms`
-                  : index === 2
+                  ? "12ms"
+                  : index === 1
                     ? `${result.latency.octenMs}ms`
-                    : index === 1
-                      ? "12ms"
+                    : index === 2
+                      ? `${result.latency.openaiMs}ms`
                       : "8ms"
                 : null;
 
@@ -451,7 +504,7 @@ export default function Home() {
                   </div>
                   <div className="trace-copy">
                     <strong>{label}</strong>
-                    <span>{index === 2 && scenario === "live" ? "Octen + direct URL" : provider}</span>
+                    <span>{index === 1 && scenario === "live" ? "Octen + direct URL" : provider}</span>
                   </div>
                   <div className="trace-meta">
                     {isActive && <span className="scanning-label">Scanning</span>}
@@ -464,29 +517,76 @@ export default function Home() {
 
           <div className="verdict-stage">
             <AnimatePresence mode="wait">
-              {!result ? (
+              {!result && demoState === "idle" ? (
                 <motion.div
-                  className="idle-state"
-                  key="idle"
+                  className="rules-state"
+                  key="rules"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  <div className={`radar ${demoState === "verifying" ? "verifying" : ""}`}>
-                    <span className="radar-ring ring-one" />
-                    <span className="radar-ring ring-two" />
-                    <ShieldCheck size={30} />
+                  <div className="rules-heading">
+                    <div>
+                      <ShieldCheck size={16} />
+                      <span>Demo Policy Pack</span>
+                    </div>
+                    <code>{activeRules.length} guardrails loaded</code>
                   </div>
-                  <strong>
-                    {demoState === "verifying"
-                      ? "Cross-checking every source"
-                      : "Ready to verify"}
-                  </strong>
-                  <p>
-                    {demoState === "verifying"
-                      ? "Policy, public records, and legal context are being compared now."
-                      : "One click builds an auditable chain from customer claim to safe action."}
-                  </p>
+                  <div className="rules-list">
+                    {activeRules.map((rule) => (
+                      <div className="rule-row" key={rule.id}>
+                        <code>{rule.id}</code>
+                        <span>{rule.text}</span>
+                        <Check size={12} />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="rules-footer">
+                    <span><LockKeyhole size={11} /> Internal Policy Graph · v2026.07</span>
+                    <strong>Ready to verify</strong>
+                  </div>
+                </motion.div>
+              ) : !result && demoState === "verifying" ? (
+                <motion.div
+                  className="telemetry-state"
+                  key="telemetry"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <div className="terminal-heading">
+                    <div className="terminal-dots"><span /><span /><span /></div>
+                    <span><Terminal size={12} /> Live tool telemetry</span>
+                    <code>trace: pending</code>
+                  </div>
+                  <div className="terminal-body">
+                    <div className="terminal-command">
+                      <span>$</span> ground-truth verify --mode={scenario}
+                    </div>
+                    <AnimatePresence initial={false}>
+                      {telemetryLines
+                        .filter((line) => line.stage <= activeStage)
+                        .map((line) => (
+                          <motion.div
+                            className="terminal-line"
+                            key={`${line.source}-${line.stage}`}
+                            initial={{ opacity: 0, x: -6 }}
+                            animate={{ opacity: 1, x: 0 }}
+                          >
+                            <code>{line.time}</code>
+                            <b className={`source-${line.source}`}>[{line.source}]</b>
+                            <span>{line.message}</span>
+                          </motion.div>
+                        ))}
+                    </AnimatePresence>
+                    <div className="terminal-working">
+                      <LoaderCircle className="spin" size={11} />
+                      waiting for grounded decision<span className="terminal-cursor" />
+                    </div>
+                  </div>
+                  <div className="terminal-footer">
+                    No model output can authorize a financial action without cited evidence.
+                  </div>
                 </motion.div>
               ) : (
                 <motion.div
@@ -497,14 +597,17 @@ export default function Home() {
                   transition={{ type: "spring", stiffness: 260, damping: 24 }}
                 >
                   <div className="verdict-topline">
-                    <span><AlertTriangle size={14} /> Conflict detected</span>
-                    <code>{result.traceId}</code>
+                    <span><AlertTriangle size={14} /> {result?.verdict.conflictDetected ? "Conflict detected" : "Claim grounded"}</span>
+                    <code>{result?.traceId}</code>
                   </div>
-                  <h3>{result.verdict.headline}</h3>
-                  <p>{result.verdict.reason}</p>
+                  <h3>{result?.verdict.headline}</h3>
+                  <p>{result?.verdict.reason}</p>
                   <div className="verdict-source-row">
-                    <ProviderBadge mode={result.providers.openai} label="OpenAI" />
-                    <ProviderBadge mode={result.providers.octen} label="Octen" />
+                    <ProviderBadge mode={result?.providers.openai} label="OpenAI" />
+                    <ProviderBadge mode={result?.providers.octen} label="Octen" />
+                    {scenario === "live" && result?.liveEvidence[0]?.source.startsWith("X") && (
+                      <ProviderBadge mode="live" label="Direct X" />
+                    )}
                   </div>
                 </motion.div>
               )}
@@ -618,7 +721,10 @@ export default function Home() {
 
         <div className="conflict-connector" aria-label="Conflicts with">
           <span />
-          <div><AlertTriangle size={14} /> {result?.verdict.conflictDetected ? "CONFLICT" : "GROUNDED"}</div>
+          <div>
+            <AlertTriangle size={14} />
+            {result ? (result.verdict.conflictDetected ? "CONFLICT" : "GROUNDED") : "COMPARE"}
+          </div>
           <span />
         </div>
 
