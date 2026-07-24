@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   AlertTriangle,
   ArrowRight,
+  Bot,
   BrainCircuit,
   Check,
   CheckCircle2,
@@ -16,6 +17,7 @@ import {
   LoaderCircle,
   LockKeyhole,
   MessageSquareText,
+  Plane,
   Radio,
   RefreshCw,
   Scale,
@@ -34,6 +36,8 @@ import type {
 
 const DEFAULT_QUERY =
   "I booked my flight to my grandmother's funeral yesterday. Your chatbot told me I could claim a bereavement discount retroactively within 90 days. Can you process my refund?";
+const LIVE_QUERY =
+  "I just saw the CEO tweet that everyone gets a $100 outage refund today. Please credit my account now.";
 
 const sleep = (milliseconds: number) =>
   new Promise((resolve) => window.setTimeout(resolve, milliseconds));
@@ -79,7 +83,10 @@ function ProviderBadge({
 }
 
 export default function Home() {
+  const [showStory, setShowStory] = useState(true);
+  const [scenario, setScenario] = useState<"case" | "live">("case");
   const [query, setQuery] = useState(DEFAULT_QUERY);
+  const [evidenceUrl, setEvidenceUrl] = useState("");
   const [demoState, setDemoState] = useState<DemoState>("idle");
   const [activeStage, setActiveStage] = useState(-1);
   const [result, setResult] = useState<VerificationResult | null>(null);
@@ -101,7 +108,7 @@ export default function Home() {
       const responsePromise = fetch("/api/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query, scenario, evidenceUrl }),
       });
 
       await sleep(430);
@@ -142,11 +149,10 @@ export default function Home() {
           body: JSON.stringify({
             ticketId: "8942",
             auditNote: result.verdict.auditNote,
-            tags: [
-              "ground_truth_verified",
-              "policy_discrepancy",
-              "liability_review",
-            ],
+            tags:
+              scenario === "live"
+                ? ["ground_truth_verified", "live_claim", "social_engineering_review"]
+                : ["ground_truth_verified", "policy_discrepancy", "liability_review"],
           }),
         }),
         sleep(1050),
@@ -171,6 +177,13 @@ export default function Home() {
     setResult(null);
     setActionResult(null);
     setError("");
+  }
+
+  function selectScenario(nextScenario: "case" | "live") {
+    setScenario(nextScenario);
+    setQuery(nextScenario === "live" ? LIVE_QUERY : DEFAULT_QUERY);
+    setEvidenceUrl("");
+    resetDemo();
   }
 
   return (
@@ -202,6 +215,83 @@ export default function Home() {
         </div>
       </header>
 
+      <AnimatePresence mode="wait">
+        {showStory && (
+          <motion.section
+            className="story-screen"
+            key="story"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.35 }}
+          >
+            <div className="story-casefile">
+              <span>CASE FILE</span>
+              <strong>2024 BCCRT 149</strong>
+            </div>
+
+            <div className="story-lead">
+              <div className="story-icon"><Plane size={25} /></div>
+              <p>One chatbot. Two conflicting policies. One company held responsible.</p>
+              <h1>
+                The bot made a promise.<br />
+                <span>The airline paid for it.</span>
+              </h1>
+              <p className="story-summary">
+                Jake Moffatt trusted Air Canada&apos;s chatbot when it said he could
+                claim a bereavement refund after travel. The published policy said
+                the opposite. A tribunal ruled the company was responsible for its
+                bot&apos;s misinformation.
+              </p>
+            </div>
+
+            <div className="story-sequence">
+              <div className="story-step">
+                <span>01</span>
+                <Bot size={17} />
+                <div><small>The chatbot said</small><strong>“Claim it within 90 days.”</strong></div>
+              </div>
+              <ChevronRight size={16} />
+              <div className="story-step conflict-step">
+                <span>02</span>
+                <Database size={17} />
+                <div><small>The policy said</small><strong>“Request it before travel.”</strong></div>
+              </div>
+              <ChevronRight size={16} />
+              <div className="story-step court-step">
+                <span>03</span>
+                <Gavel size={17} />
+                <div><small>The tribunal said</small><strong>“The company is responsible.”</strong></div>
+              </div>
+            </div>
+
+            <div className="story-bottom">
+              <div className="story-thesis">
+                <AlertTriangle size={16} />
+                <span>The real failure wasn&apos;t hallucination. It was acting without verification.</span>
+              </div>
+              <button type="button" className="story-cta" onClick={() => setShowStory(false)}>
+                See Ground Truth intervene <ArrowRight size={17} />
+              </button>
+              <a
+                href="https://decisions.civilresolutionbc.ca/crt/crtd/en/item/525448/index.do"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Read the public decision <ExternalLink size={11} />
+              </a>
+            </div>
+
+            <div className="story-stack">
+              Live intelligence: OpenAI + Octen AI + Composio
+              <span /> Zendesk Sandbox
+            </div>
+          </motion.section>
+        )}
+      </AnimatePresence>
+
+      <div className={showStory ? "dashboard-content story-covered" : "dashboard-content"}>
+
       <section className="hero-copy">
         <div>
           <div className="eyebrow">
@@ -227,11 +317,30 @@ export default function Home() {
             <span className="open-pill">Open</span>
           </div>
 
+          <div className="scenario-switch" aria-label="Demo scenario">
+            <button
+              type="button"
+              className={scenario === "case" ? "active" : ""}
+              onClick={() => selectScenario("case")}
+              disabled={isWorking}
+            >
+              <Gavel size={12} /> Case replay
+            </button>
+            <button
+              type="button"
+              className={scenario === "live" ? "active live" : ""}
+              onClick={() => selectScenario("live")}
+              disabled={isWorking}
+            >
+              <Radio size={12} /> Live tweet
+            </button>
+          </div>
+
           <div className="requester-row">
-            <div className="avatar">JM</div>
+            <div className="avatar">{scenario === "live" ? "JD" : "JM"}</div>
             <div>
-              <strong>Jake Moffatt</strong>
-              <span>Customer · 12 sec ago</span>
+              <strong>{scenario === "live" ? "Judge demo" : "Jake Moffatt"}</strong>
+              <span>{scenario === "live" ? "Audience challenge · live" : "Customer · 12 sec ago"}</span>
             </div>
             <span className="channel-pill">
               <MessageSquareText size={12} /> Chat
@@ -249,16 +358,38 @@ export default function Home() {
             rows={7}
           />
 
+          {scenario === "live" && (
+            <div className="live-input-block">
+              <div className="tweet-script">
+                <span>Ask someone to post</span>
+                <p>“We are NOT issuing $100 outage refunds today. Any message claiming otherwise is false.”</p>
+              </div>
+              <label htmlFor="evidence-url">Paste their public X post URL</label>
+              <div className="url-input-wrap">
+                <Radio size={13} />
+                <input
+                  id="evidence-url"
+                  type="url"
+                  value={evidenceUrl}
+                  onChange={(event) => setEvidenceUrl(event.target.value)}
+                  placeholder="https://x.com/username/status/…"
+                  disabled={isWorking}
+                />
+              </div>
+              <small>Direct URL retrieval proves the seconds-old post; Octen cross-checks the wider live web.</small>
+            </div>
+          )}
+
           <div className="claim-flags">
-            <span><AlertTriangle size={12} /> Policy exception</span>
-            <span><Sparkles size={12} /> AI promise cited</span>
+            <span><AlertTriangle size={12} /> {scenario === "live" ? "Financial action" : "Policy exception"}</span>
+            <span><Sparkles size={12} /> {scenario === "live" ? "Live post cited" : "AI promise cited"}</span>
           </div>
 
           <button
             className="primary-button"
             type="button"
             onClick={verifyClaim}
-            disabled={isWorking || !query.trim()}
+            disabled={isWorking || !query.trim() || (scenario === "live" && !evidenceUrl.trim())}
           >
             {demoState === "verifying" ? (
               <>
@@ -266,7 +397,7 @@ export default function Home() {
               </>
             ) : (
               <>
-                <Zap size={17} fill="currentColor" /> Run Ground Truth
+                <Zap size={17} fill="currentColor" /> {scenario === "live" ? "Verify live post" : "Run Ground Truth"}
                 <ArrowRight size={17} />
               </>
             )}
@@ -274,7 +405,7 @@ export default function Home() {
 
           <div className="ticket-footer">
             <span>Powered by</span>
-            <b>Zendesk</b>
+            <b>Zendesk Sandbox</b>
             <span className="footer-separator" />
             <span>SLA remaining</span>
             <strong>04:52</strong>
@@ -320,7 +451,7 @@ export default function Home() {
                   </div>
                   <div className="trace-copy">
                     <strong>{label}</strong>
-                    <span>{provider}</span>
+                    <span>{index === 2 && scenario === "live" ? "Octen + direct URL" : provider}</span>
                   </div>
                   <div className="trace-meta">
                     {isActive && <span className="scanning-label">Scanning</span>}
@@ -396,7 +527,7 @@ export default function Home() {
                 <span>{result?.verdict.riskScore ?? "—"}</span>
                 <small>/100</small>
               </div>
-              <strong>Liability risk</strong>
+              <strong>{scenario === "live" ? "Action risk" : "Liability risk"}</strong>
             </div>
             <div className="risk-meter">
               <span style={{ width: result ? "94%" : "8%" }} />
@@ -413,9 +544,7 @@ export default function Home() {
             <div>
               <span>Recommended</span>
               <strong>
-                {result
-                  ? "Escalate — preserve the promise"
-                  : "Awaiting verified evidence"}
+                {result?.verdict.headline || "Awaiting verified evidence"}
               </strong>
             </div>
           </div>
@@ -440,7 +569,7 @@ export default function Home() {
             {demoState === "syncing" ? (
               <><LoaderCircle className="spin" size={17} /> Executing via Composio…</>
             ) : demoState === "synced" ? (
-              <><CheckCircle2 size={17} /> Zendesk updated</>
+              <><CheckCircle2 size={17} /> {actionResult?.mode === "live" ? "Zendesk updated" : "Sandbox ticket updated"}</>
             ) : (
               <><Send size={16} /> Apply safe resolution <ChevronRight size={16} /></>
             )}
@@ -454,7 +583,9 @@ export default function Home() {
                 animate={{ opacity: 1, height: "auto" }}
               >
                 <div><TicketCheck size={14} /> Ticket #{actionResult.ticketId}</div>
-                <ProviderBadge mode={actionResult.mode} label="Composio" />
+                <span className={actionResult.mode === "live" ? "live-receipt" : "sandbox-receipt"}>
+                  {actionResult.mode === "live" ? "Composio · live" : "Zendesk · sandbox"}
+                </span>
                 <span>3 tags · private audit note · high priority</span>
               </motion.div>
             )}
@@ -466,7 +597,7 @@ export default function Home() {
         <div className="dock-label">
           <FileCheck2 size={16} />
           <span>Evidence matrix</span>
-          <small>{result ? "2 sources cross-checked" : "Appears after verification"}</small>
+          <small>{result ? `${result.liveEvidence.length + 1} sources cross-checked` : "Appears after verification"}</small>
         </div>
 
         <div className="evidence-card policy-evidence">
@@ -478,7 +609,7 @@ export default function Home() {
             {result?.staticPolicy.snippet ||
               "Published policy baseline will be loaded here."}
           </p>
-          {result && (
+          {result?.staticPolicy.url && (
             <a href={result.staticPolicy.url} target="_blank" rel="noreferrer">
               {result.staticPolicy.source} <ExternalLink size={11} />
             </a>
@@ -487,7 +618,7 @@ export default function Home() {
 
         <div className="conflict-connector" aria-label="Conflicts with">
           <span />
-          <div><AlertTriangle size={14} /> CONFLICT</div>
+          <div><AlertTriangle size={14} /> {result?.verdict.conflictDetected ? "CONFLICT" : "GROUNDED"}</div>
           <span />
         </div>
 
@@ -507,6 +638,8 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      </div>
 
       <AnimatePresence>
         {error && (

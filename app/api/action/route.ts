@@ -28,10 +28,11 @@ export async function POST(request: Request) {
       ? body.tags.filter((tag): tag is string => typeof tag === "string").slice(0, 8)
       : DEFAULT_TAGS;
 
-    let mode: ZendeskActionResult["mode"] = "demo";
+    let mode: ZendeskActionResult["mode"] = "sandbox";
     const apiKey = process.env.COMPOSIO_API_KEY?.trim();
+    const zendeskMode = process.env.ZENDESK_MODE?.trim().toLowerCase();
 
-    if (apiKey) {
+    if (apiKey && zendeskMode === "live") {
       try {
         const composio = new ComposioToolSet({
           apiKey,
@@ -52,8 +53,8 @@ export async function POST(request: Request) {
         });
         mode = "live";
       } catch {
-        // The deterministic demo result keeps the presentation usable if OAuth is
-        // not connected yet. The response is explicitly labeled as demo mode.
+        // The deterministic sandbox result keeps the presentation usable if OAuth
+        // is not connected. The response is explicitly labeled as sandbox mode.
       }
     }
 

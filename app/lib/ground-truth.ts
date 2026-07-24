@@ -40,7 +40,7 @@ export type VerificationResult = {
 
 export type ZendeskActionResult = {
   success: boolean;
-  mode: ProviderMode;
+  mode: "live" | "sandbox";
   provider: "Composio";
   ticketId: string;
   action: string;

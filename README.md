@@ -16,7 +16,9 @@ Open [http://localhost:3000](http://localhost:3000), then:
 2. Watch the policy, live evidence, and legal discrepancy resolve in the evidence trace.
 3. Click **Apply safe resolution** to tag and update the Zendesk ticket through Composio.
 
-The app automatically uses live integrations when their environment variables are configured. Without credentials, it uses clearly labeled deterministic demo data so the complete judge flow remains presentable.
+For the audience challenge, select **Live tweet**, ask someone to publish the denial text shown in the UI, paste the public X post URL, and click **Verify live post**. Direct URL retrieval makes a seconds-old post available immediately while Octen searches the wider live web; OpenAI then generates a new verdict from the retrieved text and policy.
+
+The app automatically uses OpenAI and Octen live when their environment variables are configured. Zendesk defaults to a clearly labeled sandbox receipt (`ZENDESK_MODE=sandbox`), so no Zendesk account is required for the demo. Set `ZENDESK_MODE=live` only after connecting Zendesk in Composio.
 
 ## Stack
 
