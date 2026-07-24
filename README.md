@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ground Truth
 
-## Getting Started
+Ground Truth is a real-time verification and action layer for AI support agents. It extracts a customer's policy claim with OpenAI, checks the static policy against live public context from Octen AI, identifies liability-causing discrepancies, and executes a safe Zendesk workflow through Composio.
 
-First, run the development server:
+## Demo
 
 ```bash
+npm install
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000), then:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Click **Run Ground Truth** to verify the Moffatt v. Air Canada scenario.
+2. Watch the policy, live evidence, and legal discrepancy resolve in the evidence trace.
+3. Click **Apply safe resolution** to tag and update the Zendesk ticket through Composio.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The app automatically uses live integrations when their environment variables are configured. Without credentials, it uses clearly labeled deterministic demo data so the complete judge flow remains presentable.
 
-## Learn More
+## Stack
 
-To learn more about Next.js, take a look at the following resources:
+- OpenAI Responses API with strict structured outputs
+- Octen AI live search
+- Composio action execution
+- Zendesk ticket workflow
+- Next.js 16, React 19, TypeScript, Tailwind CSS
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## API routes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `POST /api/verify` — claim extraction, policy check, live evidence, and verdict
+- `POST /api/action` — Composio-powered Zendesk ticket update
